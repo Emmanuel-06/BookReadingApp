@@ -10,31 +10,70 @@ class BooksRepository @Inject constructor(
     private val booksApi: BooksApi
 ) {
     suspend fun getAllBooks(booksQuery: String): DataOrException<List<Item>> {
-        return try {
-            val books = booksApi.getAllBooks(booksQuery).items ?: emptyList()
-            DataOrException(
-                data = books,
-                loading = false,
-                exception = null
-            )
-        } catch (e: Exception) {
-            DataOrException(
-                data = emptyList(),
-                loading = false,
-                exception = e
-            )
+
+        val allBooksResponse = try {
+            booksApi.getAllBooks(booksQuery).items
+        } catch (e: Exception){
+            return DataOrException(exception = e)
         }
+
+        return DataOrException(data = allBooksResponse)
     }
 
 
-//    suspend fun getBookInfo(bookId: String): DataOrException<Item, Exception> {
-//        val apiBookIdCallResponse = try {
-//            booksApi.getBookInfo(bookId)
-//        } catch (e: Exception) {
-//            return DataOrException(exception = e)
-//        }
-//        return DataOrException(data = apiBookIdCallResponse)
-//    }
+    suspend fun getBookInfo(bookInfoQuery: String): DataOrException<Item>{
+        val bookInfoResponse = try {
+            booksApi.getBookInfo(bookInfoQuery)
+        } catch (e: Exception){
+            return DataOrException(exception = e)
+        }
+
+        return DataOrException(data = bookInfoResponse)
+    }
 }
 
 
+
+
+
+
+
+//    val response = DataOrException<List<Item>>()
+//    response.loading = true
+//
+//    try {
+//        val books = booksApi.getAllBooks(booksQuery).items ?: emptyList()
+//        response.data = books
+//            DataOrException(
+//                data = books,
+//                loading = false,
+//                exception = null
+//            )
+//    } catch (e: Exception) {
+//        response.exception = e
+//            DataOrException(
+//                data = emptyList(),
+//                loading = false,
+//                exception = e
+//            )
+//    }
+//}
+
+
+//
+//suspend fun getBookInfo(bookId: String): DataOrException<Item> {
+//    return try {
+//        val bookInfo = booksApi.getBookInfo(bookId)
+//        DataOrException(
+//            data = bookInfo,
+//            loading = false,
+//            exception = null
+//        )
+//    } catch (e: Exception) {
+//        DataOrException(
+//            data = null,
+//            loading = false,
+//            exception = e
+//        )
+//    }
+//}

@@ -22,11 +22,6 @@ class LoginViewModel : ViewModel() {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Log.d(
-                                "FB",
-                                "signInWithEmailAndPassword: Yaaayy! ${task.result.toString()}"
-                            )
-                            //Todo: navigate to Home Screen
                             home()
                         } else {
                             Log.d("FB", "Wrong Details")

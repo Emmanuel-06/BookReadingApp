@@ -3,6 +3,7 @@ package com.example.bookreaderapp.screens.home
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,6 +67,7 @@ import com.example.bookreaderapp.components.ReadingListCard
 import com.example.bookreaderapp.components.SectionTitle
 import com.example.bookreaderapp.model.Item
 import com.example.bookreaderapp.model.MBook
+import com.example.bookreaderapp.navigation.BookReaderScreens
 import com.example.bookreaderapp.screens.search.BookSearchViewModel
 import com.example.bookreaderapp.ui.theme.InterFont
 import com.google.firebase.auth.FirebaseAuth
@@ -93,7 +95,7 @@ fun BookReaderHomeScreen(
 
     //To do: Mbook data class
     val currentUserName = if (!access.isNullOrEmpty()) {
-        access?.split("@")?.get(0)
+        access.split("@")[0]
     } else {
         "n/a"
     }
@@ -129,7 +131,7 @@ fun BookReaderHomeScreen(
                                 modifier = Modifier.alpha(0.8f)
                             )
                             Text(
-                                text = "What would you like to read today?",
+                                text = "What are you reading today?",
                                 fontSize = 18.sp,
                                 fontFamily = InterFont,
                                 color = colorResource(id = R.color.black),
@@ -190,10 +192,9 @@ fun BookReaderHomeScreen(
                     query = query.value,
                     onQueryChange = { query.value = it },
                     onSearch = {
-                        viewModel.getAllBooks(query.value)
+                        viewModel.getAllBooks(it)
                         query.value = ""
                         keyboardController?.hide()
-
                     },
                     active = active.value,
                     onActiveChange = { active.value = it },
@@ -230,7 +231,7 @@ fun BookReaderHomeScreen(
                         state.loading -> {
                             CircularProgressIndicator()
                         }
-                        state.data.isEmpty() -> {
+                        state.data?.isEmpty() == true -> {
                             Text("No Books available")
                         }
                         else -> {
@@ -238,8 +239,8 @@ fun BookReaderHomeScreen(
                                 contentPadding = PaddingValues(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(14.dp)
                             ){
-                                items(state.data){ book ->
-                                    SearchResultItem(book = book, viewModel = viewModel)
+                                items(state.data ?: emptyList()){ book ->
+                                    SearchResultItem(book = book, viewModel = viewModel, navController = navController)
 
                                 }
                             }
@@ -257,6 +258,7 @@ fun BookReaderHomeScreen(
 @Composable
 fun SearchResultItem(
     book: Item,
+    navController: NavController,
     viewModel: BookSearchViewModel
 ) {
     val imageUrl: String? = book.volumeInfo.imageLinks?.smallThumbnail ?.replace("http://", "https://")
@@ -270,10 +272,12 @@ fun SearchResultItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 0.dp)
+            .clickable { navController.navigate(BookReaderScreens.DETAILS_SCREEN.name + "/${book.id}") }
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.Top,
+
         ) {
             Image(
                 painter = rememberAsyncImagePainter(model = imageUrl),
@@ -361,3 +365,4 @@ fun ReadingListArea(
         }
     }
 }
+

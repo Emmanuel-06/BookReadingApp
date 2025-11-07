@@ -8,18 +8,17 @@ import retrofit2.http.Query
 import javax.inject.Singleton
 
 @Singleton
-interface BooksApi{
+interface  BooksApi{
     //https://www.googleapis.com/books/v1/volumes?q=kotlin
    @GET("books/v1/volumes")
    suspend fun getAllBooks(
-        query: String
+        @Query("q") query: String
    ):Book
 
    @GET("books/v1/volumes/{bookId}")
    suspend fun getBookInfo(
        @Path("bookId") bookId: String
    ):Item
-
 }
 
 

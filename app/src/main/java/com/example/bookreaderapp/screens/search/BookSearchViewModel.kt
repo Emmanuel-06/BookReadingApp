@@ -18,7 +18,7 @@ class BookSearchViewModel @Inject constructor(
 ): ViewModel() {
 
     var listOfBooks: MutableState<DataOrException<List<Item>>> = mutableStateOf(
-        DataOrException(data = emptyList<Item>(), loading = true)
+        DataOrException(data = emptyList(), loading = true)
     )
 
     init {
@@ -27,13 +27,18 @@ class BookSearchViewModel @Inject constructor(
 
     fun getAllBooks(bookQuery: String) {
         viewModelScope.launch {
-            if(bookQuery.isEmpty()){
+            if (bookQuery.isEmpty()) {
                 return@launch
             }
             listOfBooks.value = DataOrException(data = emptyList(), loading = true)
 
             listOfBooks.value = booksRepository.getAllBooks(bookQuery)
             Log.d("DATA", "getAllBooks: ${listOfBooks.value.data.toString()}")
+
+            if (listOfBooks.value.data.toString().isNotEmpty()) {
+                listOfBooks.value.loading = false
+            }
+
         }
     }
 }
