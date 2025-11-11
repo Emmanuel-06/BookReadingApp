@@ -9,8 +9,9 @@
     <color name="white">#FFFFFFFF</color>
 
 
-    //cusotom colors
+    //custom colors
     <color name ="primary_color">#563188</color>
     <color name ="accent_color">#D6C2F1</color>
     <color name="grey">#ACACAC</color>
+    <color name="grey300">#EEF1F3</color>
 </resources>

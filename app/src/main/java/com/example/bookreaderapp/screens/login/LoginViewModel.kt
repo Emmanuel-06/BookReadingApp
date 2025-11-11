@@ -28,7 +28,7 @@ class LoginViewModel : ViewModel() {
                         }
                     }
             } catch (e: Exception) {
-                Log.d("FB", "${e.message.toString()}")
+                Log.d("FB", e.message.toString())
             }
     }
 

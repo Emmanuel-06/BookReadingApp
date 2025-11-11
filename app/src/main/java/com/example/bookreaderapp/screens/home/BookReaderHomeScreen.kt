@@ -1,6 +1,5 @@
 package com.example.bookreaderapp.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,7 +61,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.bookreaderapp.R
-import com.example.bookreaderapp.components.ReadingBookListCard
+import com.example.bookreaderapp.components.CurrentReadCard
 import com.example.bookreaderapp.components.ReadingListCard
 import com.example.bookreaderapp.components.SectionTitle
 import com.example.bookreaderapp.model.Item
@@ -81,13 +80,13 @@ fun BookReaderHomeScreen(
     modifier: Modifier = Modifier
 ) {
 
-    var search = remember {
+    val search = remember {
         mutableStateOf(false)
     }
-    var query = remember {
+    val query = remember {
         mutableStateOf("")
     }
-    var active = remember {
+    val active = remember {
         mutableStateOf(true)
     }
 
@@ -102,13 +101,13 @@ fun BookReaderHomeScreen(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val listOfBooks = listOf<MBook>(
-        MBook(id = "1223", title = "Deep Work", authors = "Author 1", notes = null),
-        MBook(id = "1223", title = "Make Time", authors = "Author 2", notes = null),
-        MBook(id = "1223", title = "The Purpose Driven Life", authors = "Author 3", notes = null),
-        MBook(id = "1223", title = "Psychology of Money", authors = "Author 4", notes = null),
-        MBook(id = "1223", title = "Richest Man in Babylon", authors = "Author 5", notes = null),
-        MBook(id = "1223", title = "Rich Dad, Poor Dad", authors = "Author 6", notes = null),
+    val bookList = listOf<MBook>(
+        MBook(id = "1223", title = "Deep Work", authors = listOf("author 1", "author 2"), notes = null),
+        MBook(id = "1223", title = "Make Time", authors = listOf("author 1", "author 2"), notes = null),
+        MBook(id = "1223", title = "The Purpose Driven Life", authors = listOf("author 1", "author 2"), notes = null),
+        MBook(id = "1223", title = "Psychology of Money", authors = listOf("author 1", "author 2"), notes = null),
+        MBook(id = "1223", title = "Richest Man in Babylon", authors = listOf("author 1", "author 2"), notes = null),
+        MBook(id = "1223", title = "Rich Dad, Poor Dad", authors = listOf("author 1", "author 2"), notes = null),
     )
 
     Box(
@@ -167,7 +166,6 @@ fun BookReaderHomeScreen(
                         contentDescription = "search",
                         tint = colorResource(id = R.color.white),
                         modifier = Modifier
-
                     )
                 }
             },
@@ -179,10 +177,10 @@ fun BookReaderHomeScreen(
                     .padding(it)
                     .padding(horizontal = 16.dp, vertical = 30.dp)
             ) {
-                ReadingBookListCard()
+                CurrentReadCard()
                 Spacer(modifier = Modifier.height(8.dp))
                 SectionTitle(text = "My Reading List")
-                ReadingListArea(listOfBooks = listOfBooks, onCardClicked = {})
+                ReadingListSection(listOfBooks = bookList, onClick= {})
             }
         }
 
@@ -240,7 +238,7 @@ fun BookReaderHomeScreen(
                                 verticalArrangement = Arrangement.spacedBy(14.dp)
                             ){
                                 items(state.data ?: emptyList()){ book ->
-                                    SearchResultItem(book = book, viewModel = viewModel, navController = navController)
+                                    SearchResultItem(book = book, navController = navController)
 
                                 }
                             }
@@ -258,14 +256,9 @@ fun BookReaderHomeScreen(
 @Composable
 fun SearchResultItem(
     book: Item,
-    navController: NavController,
-    viewModel: BookSearchViewModel
+    navController: NavController
 ) {
     val imageUrl: String? = book.volumeInfo.imageLinks?.smallThumbnail ?.replace("http://", "https://")
-
-    Log.d("IMMG", "SearchResultItem: $imageUrl")
-
-    val context = LocalContext.current
 
     Surface(
         shape = RoundedCornerShape(10.dp),
@@ -277,7 +270,6 @@ fun SearchResultItem(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.Top,
-
         ) {
             Image(
                 painter = rememberAsyncImagePainter(model = imageUrl),
@@ -286,6 +278,7 @@ fun SearchResultItem(
                 modifier = Modifier
                     .size(60.dp)
             )
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(0.dp),
                 horizontalAlignment = Alignment.Start,
@@ -336,21 +329,17 @@ fun SearchResultItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
             }
-
         }
-
     }
-
 }
 
 @Composable
-fun ReadingListArea(
+fun ReadingListSection(
     listOfBooks: List<MBook>,
-    onCardClicked: (String) -> Unit
+    onClick: (String) -> Unit
 ) {
-    var scrollState = rememberScrollState()
+    val scrollState = rememberScrollState()
 
     Row(
         verticalAlignment = Alignment.CenterVertically,

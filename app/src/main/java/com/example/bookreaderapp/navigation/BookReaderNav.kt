@@ -4,7 +4,6 @@ package com.example.bookreaderapp.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,13 +14,9 @@ import com.example.bookreaderapp.screens.createaccount.BookReaderCreateAccountSc
 import com.example.bookreaderapp.screens.details.BookReaderDetailsScreen
 import com.example.bookreaderapp.screens.home.BookReaderHomeScreen
 import com.example.bookreaderapp.screens.login.BookReaderLoginScreen
-import com.example.bookreaderapp.screens.search.BookReaderSearchScreen
-import com.example.bookreaderapp.screens.search.BookSearchViewModel
 import com.example.bookreaderapp.screens.stats.BookReaderStatsScreen
 import com.example.bookreaderapp.screens.update.BookReaderUpdateScreen
 import com.example.bookreaderapp.utils.AuthViewModel
-
-const val FAB_EXPLODE_KEY = "KEY"
 
 @Composable
 fun BookReaderNav() {
@@ -62,11 +57,6 @@ fun BookReaderNav() {
 
         composable(BookReaderScreens.STATS_SCREEN.name) {
             BookReaderStatsScreen()
-        }
-
-        composable(BookReaderScreens.SEARCH_SCREEN.name + "/{itemId}") { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getString("itemId")
-            BookReaderSearchScreen()
         }
 
         composable(BookReaderScreens.UPDATE_SCREEN.name) {

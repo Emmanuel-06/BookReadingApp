@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,14 +54,6 @@ fun EmailInputField(
         onValueChange = { emailAddressState.value = it },
         shape = RoundedCornerShape(10.dp),
         singleLine = true,
-//            placeholder = {
-//                Text(
-//                    text = "Email",
-//                    fontSize = 14.sp,
-//                    fontFamily = _root_ide_package_.com.example.bookreaderapp.ui.theme.SfProFont,
-//                    fontWeight = FontWeight.Medium
-//                )
-//            },
         label = {
             Text(
                 text = "Email",
@@ -162,8 +153,8 @@ fun PasswordInputField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReadingBookListCard(
-    book: MBook = MBook("", "", "", ""),
+fun CurrentReadCard(
+    book: MBook = MBook("", "", listOf("",""), ""),
     onClickDetails: (String) -> Unit = {}
 ) {
 
@@ -231,7 +222,7 @@ fun ReadingBookListCard(
 fun ReadingListCard(
     book: MBook,
     modifier: Modifier,
-    onClickDetails: (String) -> Unit = {},
+    onClick: (String) -> Unit = {},
 ) {
 
     Card(
@@ -277,7 +268,7 @@ fun ReadingListCard(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
-                    text = book.title,
+                    text = book.title ?: "",
                     fontFamily = SfProFont,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -285,13 +276,15 @@ fun ReadingListCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = book.authors,
-                    fontFamily = SfProFont,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = colorResource(id = R.color.black).copy(0.8f)
-                )
+                book.authors?.forEach{ author ->
+                    Text(
+                        text = author,
+                        fontFamily = SfProFont,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = colorResource(id = R.color.black).copy(0.8f)
+                    )
+                }
                 Text(
                     text = "rating",
                     fontFamily = SfProFont,
