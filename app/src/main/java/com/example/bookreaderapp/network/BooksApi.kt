@@ -20,17 +20,3 @@ interface  BooksApi{
        @Path("bookId") bookId: String
    ):Item
 }
-
-
-
-
-//@Singleton
-//interface BookApi{
-//    @GET("books/v1/volumes")
-//    suspend fun getAllBooks(
-//        @Query("q")query: String
-//    ): Book
-//
-//    @GET("books/v1/volumes/{bookId}")
-//    suspend fun getBookInfo(@Path("bookId") bookId: String): Item
-//}

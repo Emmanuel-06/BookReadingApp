@@ -8,7 +8,6 @@ enum class BookReaderScreens {
     HOME_SCREEN,
     DETAILS_SCREEN,
     UPDATE_SCREEN,
-    SEARCH_SCREEN,
     STATS_SCREEN;
 
     companion object {

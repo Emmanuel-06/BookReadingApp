@@ -1,6 +1,7 @@
 package com.example.bookreaderapp.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.bookreaderapp.R
 import com.example.bookreaderapp.model.MBook
 import com.example.bookreaderapp.ui.theme.SfProFont
@@ -230,6 +233,7 @@ fun ReadingListCard(
         colors = CardDefaults.cardColors(colorResource(id = R.color.white)),
         modifier = Modifier
             .size(height = 200.dp, width = 160.dp)
+            .clickable { onClick(book.title.toString()) }
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -243,7 +247,8 @@ fun ReadingListCard(
                     .fillMaxWidth()
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.maketime),
+                    painter = rememberAsyncImagePainter(model = book.photoUrl.toString()
+                        .replace("http://", "https://")),
                     contentDescription = "null",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

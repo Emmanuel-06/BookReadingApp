@@ -37,7 +37,9 @@ import com.example.bookreaderapp.R
 import com.example.bookreaderapp.model.Item
 import com.example.bookreaderapp.model.MBook
 import com.example.bookreaderapp.utils.DataOrException
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun BookReaderDetailsScreen(
@@ -85,6 +87,8 @@ fun BookDetails(
         }
 
     val bookData = bookInfo.data?.volumeInfo
+    val userId = Firebase.auth.currentUser?.uid
+
     val book = MBook(
         title = bookData?.title,
         authors = bookData?.authors,
@@ -92,7 +96,8 @@ fun BookDetails(
         categories = bookData?.categories,
         description = bookData?.description,
         pageCount = bookData?.pageCount.toString(),
-        photoUrl = bookData?.imageLinks?.thumbnail
+        photoUrl = bookData?.imageLinks?.thumbnail,
+        userId = userId
     )
 
     val context = LocalContext.current
@@ -184,7 +189,6 @@ fun BookDetails(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Save")
-
         }
     }
 
@@ -198,6 +202,7 @@ fun saveToFireBase(book: MBook, context: Context, navController: NavController) 
         .addOnSuccessListener { docRef ->
 //                val docId = docRef.id
 //                dbCollection.document(docId)
+//                  .update(hashMapOf("id" to docId) as Map <String, Any>()
             Toast.makeText(context, "Book Successfully Added", Toast.LENGTH_LONG).show()
         }
         .addOnFailureListener {

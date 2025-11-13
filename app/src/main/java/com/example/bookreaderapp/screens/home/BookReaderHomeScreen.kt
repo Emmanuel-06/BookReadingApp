@@ -1,5 +1,6 @@
 package com.example.bookreaderapp.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,13 +72,16 @@ import com.example.bookreaderapp.navigation.BookReaderScreens
 import com.example.bookreaderapp.screens.search.BookSearchViewModel
 import com.example.bookreaderapp.ui.theme.InterFont
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookReaderHomeScreen(
     navController: NavController = NavController(LocalContext.current),
-    viewModel: BookSearchViewModel = hiltViewModel(),
+    bookSearchViewModel: BookSearchViewModel = hiltViewModel(),
+    homeScreenViewModel: HomeScreenViewModel,
     modifier: Modifier = Modifier
 ) {
 
@@ -89,10 +94,7 @@ fun BookReaderHomeScreen(
     val active = remember {
         mutableStateOf(true)
     }
-
     val access = FirebaseAuth.getInstance().currentUser?.email
-
-    //To do: Mbook data class
     val currentUserName = if (!access.isNullOrEmpty()) {
         access.split("@")[0]
     } else {
@@ -101,14 +103,16 @@ fun BookReaderHomeScreen(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val bookList = listOf<MBook>(
-        MBook(id = "1223", title = "Deep Work", authors = listOf("author 1", "author 2"), notes = null),
-        MBook(id = "1223", title = "Make Time", authors = listOf("author 1", "author 2"), notes = null),
-        MBook(id = "1223", title = "The Purpose Driven Life", authors = listOf("author 1", "author 2"), notes = null),
-        MBook(id = "1223", title = "Psychology of Money", authors = listOf("author 1", "author 2"), notes = null),
-        MBook(id = "1223", title = "Richest Man in Babylon", authors = listOf("author 1", "author 2"), notes = null),
-        MBook(id = "1223", title = "Rich Dad, Poor Dad", authors = listOf("author 1", "author 2"), notes = null),
-    )
+    val savedBooks = homeScreenViewModel.savedBooksList.value.data
+    var bookList = emptyList<MBook>()
+    val currentUser = Firebase.auth.currentUser
+
+    if (!savedBooks.isNullOrEmpty()) {
+        bookList = savedBooks.toList().filter {
+            it.userId == currentUser?.uid.toString()
+        }
+        Log.d("BOOKS", "BookReaderHomeScreen: $bookList")
+    }
 
     Box(
         modifier = Modifier
@@ -180,7 +184,11 @@ fun BookReaderHomeScreen(
                 CurrentReadCard()
                 Spacer(modifier = Modifier.height(8.dp))
                 SectionTitle(text = "My Reading List")
-                ReadingListSection(listOfBooks = bookList, onClick= {})
+                ReadingListSection(
+                    bookList = bookList,
+                    onClick= {
+                        navController.navigate(BookReaderScreens.UPDATE_SCREEN.name + "/$it")
+                    })
             }
         }
 
@@ -190,7 +198,7 @@ fun BookReaderHomeScreen(
                     query = query.value,
                     onQueryChange = { query.value = it },
                     onSearch = {
-                        viewModel.getAllBooks(it)
+                        bookSearchViewModel.getAllBooks(it)
                         query.value = ""
                         keyboardController?.hide()
                     },
@@ -223,7 +231,7 @@ fun BookReaderHomeScreen(
                         .background(color = colorResource(id = R.color.white))
                 ) {
 
-                    val state = viewModel.listOfBooks.value
+                    val state = bookSearchViewModel.listOfBooks.value
 
                     when {
                         state.loading -> {
@@ -336,7 +344,7 @@ fun SearchResultItem(
 
 @Composable
 fun ReadingListSection(
-    listOfBooks: List<MBook>,
+    bookList: List<MBook>,
     onClick: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -347,9 +355,9 @@ fun ReadingListSection(
         modifier = Modifier.horizontalScroll(scrollState)
     ) {
 
-        for (book in listOfBooks) {
+        for (book in bookList) {
             ReadingListCard(book = book, modifier = Modifier) {
-
+                onClick(it)
             }
         }
     }

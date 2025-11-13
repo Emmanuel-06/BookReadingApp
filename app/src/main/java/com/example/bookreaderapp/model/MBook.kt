@@ -33,6 +33,9 @@ data class MBook(
     var finishedReading: Timestamp? = null,
 
     var rating: Double? = null,
+
+    @get:PropertyName("user_id")
+    @set:PropertyName("user_id")
     var userId: String? = null,
 
     @get:PropertyName("google_book_id")
