@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -293,7 +292,7 @@ fun SearchResultItem(
                 modifier = Modifier
             ) {
                 Text(
-                    text = book.volumeInfo.title.orEmpty(),
+                    text = book.volumeInfo.title,
                     fontSize = 18.sp,
                     fontFamily = InterFont,
                     color = colorResource(id = R.color.black),
@@ -323,13 +322,13 @@ fun SearchResultItem(
                                 fontWeight = FontWeight.Medium,
                             )
                         ) {
-                            append(book.volumeInfo?.authors?.toString() ?: "Unknown author")
+                            append(book.volumeInfo.authors.toString())
                         }
                     }
                 )
 
                 Text(
-                    text = book.volumeInfo.description ?: "No Description Found",
+                    text = book.volumeInfo.description,
                     fontSize = 14.sp,
                     fontFamily = InterFont,
                     color = colorResource(id = R.color.black),

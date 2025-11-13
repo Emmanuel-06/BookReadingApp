@@ -1,13 +1,10 @@
 package com.example.bookreaderapp.repository
 
-import android.util.Log
 import com.example.bookreaderapp.model.MBook
 import com.example.bookreaderapp.utils.FirebaseResponse
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import kotlin.math.log
 
 class FirebaseRepository @Inject constructor(
     private val queryBook: Query

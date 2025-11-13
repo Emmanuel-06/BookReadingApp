@@ -3,7 +3,6 @@ package com.example.bookreaderapp.di
 import com.example.bookreaderapp.network.BooksApi
 import com.example.bookreaderapp.repository.FirebaseRepository
 import com.example.bookreaderapp.utils.Constants
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.Module

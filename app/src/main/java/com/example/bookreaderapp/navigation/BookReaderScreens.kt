@@ -1,7 +1,5 @@
 package com.example.bookreaderapp.navigation
 
-import okhttp3.Route
-
 enum class BookReaderScreens {
     LOGIN_SCREEN,
     CREATE_ACCOUNT_SCREEN,
