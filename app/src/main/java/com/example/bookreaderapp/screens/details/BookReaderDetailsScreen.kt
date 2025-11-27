@@ -39,6 +39,7 @@ import com.example.bookreaderapp.model.MBook
 import com.example.bookreaderapp.utils.DataOrException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 @Composable
@@ -87,16 +88,20 @@ fun BookDetails(
         }
 
     val bookData = bookInfo.data?.volumeInfo
-    val userId = Firebase.auth.currentUser?.uid
+    val googleBookId = bookInfo.data?.id
+    val userId = Firebase.auth.currentUser?.uid.toString()
 
     val book = MBook(
-        title = bookData?.title,
+        title = bookData?.title.toString(),
         authors = bookData?.authors,
-        publishedDate = bookData?.publishedDate,
-        categories = bookData?.categories,
         description = bookData?.description,
-        pageCount = bookData?.pageCount.toString(),
+        categories = bookData?.categories,
+        notes = "",
         photoUrl = bookData?.imageLinks?.thumbnail,
+        publishedDate = bookData?.publishedDate,
+        pageCount = bookData?.pageCount.toString(),
+        rating = 0.0,
+        googleBookId = googleBookId,
         userId = userId
     )
 
@@ -155,7 +160,7 @@ fun BookDetails(
         Surface(
             color = colorResource(id = R.color.grey300),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).fillMaxWidth()
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -195,19 +200,19 @@ fun BookDetails(
 }
 
 fun saveToFireBase(book: MBook, context: Context, navController: NavController) {
-    val firebaseDb = FirebaseFirestore.getInstance()
-    val dbCollection = firebaseDb.collection("books")
+    val firebaseDb = Firebase.firestore
+    val dbCollection = firebaseDb.collection("my_books")
 
     dbCollection.add(book)
-        .addOnSuccessListener { docRef ->
-//                val docId = docRef.id
+        .addOnSuccessListener { documentRef ->
+//                val docId = documentRef.id
 //                dbCollection.document(docId)
 //                  .update(hashMapOf("id" to docId) as Map <String, Any>()
             Toast.makeText(context, "Book Successfully Added", Toast.LENGTH_LONG).show()
+            navController.popBackStack()
         }
         .addOnFailureListener {
             Toast.makeText(context, "Adding Book Failed", Toast.LENGTH_LONG).show()
         }
-    navController.popBackStack()
 }
 
