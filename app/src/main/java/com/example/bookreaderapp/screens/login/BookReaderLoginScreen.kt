@@ -65,7 +65,7 @@ fun BookReaderLoginScreen(
 
 }
 
-//@Preview(showBackground = true)
+
 @Composable
 fun FormInput(
     navController: NavController,
@@ -91,6 +91,10 @@ fun FormInput(
     }
     var valid = remember(emailAddress.value, password.value) {
         emailAddress.value.trim().isNotEmpty() && password.value.trim().isNotEmpty()
+    }
+
+    var clicked = remember(valid){
+        mutableStateOf(false)
     }
     var loading = remember(valid) {
         mutableStateOf(false)
@@ -146,6 +150,7 @@ fun FormInput(
                 }
             )
 
+
             FilledButton(
                 onClickImpl = {
                     keyboardController?.hide()
@@ -157,6 +162,7 @@ fun FormInput(
                             password.value
                         )
                         isCreateAccount.value = false
+                        clicked.value = true
 
                         emailAddress.value = ""
                         password.value = ""
@@ -165,20 +171,21 @@ fun FormInput(
                     } else {
                         Toast.makeText(
                             context,
-                            "Password and ConfirmPassword mismatch",
+                            "Password and Confirm Password mismatch",
                             Toast.LENGTH_LONG
                         )
                             .show()
                     }
-
                 },
                 isCreateAccount = isCreateAccount,
                 enabled = emailAddress.value.trim().isNotEmpty() && password.value.trim()
                     .isNotEmpty() && confirmPassword.value.trim().isNotEmpty(),
-                loading = loading,
+
+                loading = clicked.value,
                 buttonText = if (isCreateAccount.value) {
                     "Create Account"
-                } else {
+                } else
+                {
                     "Login"
                 }
             )
@@ -242,11 +249,12 @@ fun FormInput(
                     viewModel.signInWithEmailAndPassword(emailAddress.value, password.value) {
                         navController.navigate(BookReaderScreens.HOME_SCREEN.name)
                     }
+                    clicked.value = true
                 },
                 isCreateAccount = isCreateAccount,
                 enabled = emailAddress.value.trim().isNotEmpty() && password.value.trim()
                     .isNotEmpty(),
-                loading = loading,
+                loading = clicked.value,
                 buttonText = if (isCreateAccount.value) {
                     "Create Account"
                 } else {
@@ -290,7 +298,7 @@ fun FilledButton(
     onClickImpl: () -> Unit,
     isCreateAccount: MutableState<Boolean>,
     enabled: Boolean,
-    loading: MutableState<Boolean>,
+    loading: Boolean,
     buttonText: String,
     modifier: Modifier = Modifier
 ) {
@@ -324,7 +332,7 @@ fun FilledButton(
 
         Spacer(modifier = Modifier.width(20.dp))
 
-        if (loading.value) {
+        if (loading) {
             CircularProgressIndicator(
                 strokeCap = StrokeCap.Round,
                 color = colorResource(id = R.color.white),
