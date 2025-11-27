@@ -1,6 +1,5 @@
 package com.example.bookreaderapp.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,7 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -36,6 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,6 +72,7 @@ import com.example.bookreaderapp.model.MBook
 import com.example.bookreaderapp.navigation.BookReaderScreens
 import com.example.bookreaderapp.screens.search.BookSearchViewModel
 import com.example.bookreaderapp.ui.theme.InterFont
+import com.example.bookreaderapp.utils.FirebaseResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -78,10 +81,10 @@ import com.google.firebase.ktx.Firebase
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookReaderHomeScreen(
+    modifier: Modifier = Modifier,
     navController: NavController = NavController(LocalContext.current),
     bookSearchViewModel: BookSearchViewModel = hiltViewModel(),
     homeScreenViewModel: HomeScreenViewModel,
-    modifier: Modifier = Modifier
 ) {
 
     val search = remember {
@@ -102,15 +105,13 @@ fun BookReaderHomeScreen(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val savedBooks = homeScreenViewModel.savedBooksList.value.data
-    var bookList = emptyList<MBook>()
     val currentUser = Firebase.auth.currentUser
 
-    if (!savedBooks.isNullOrEmpty()) {
-        bookList = savedBooks.toList().filter {
-            it.userId == currentUser?.uid.toString()
-        }
-        Log.d("BOOKS", "BookReaderHomeScreen: $bookList")
+    val savedBooksList: FirebaseResponse<List<MBook>> by homeScreenViewModel.savedBooksList.collectAsState()
+
+
+    LaunchedEffect(key1 = Unit) {
+        homeScreenViewModel.loadSavedBooks(currentUser?.uid ?: "")
     }
 
     Box(
@@ -183,15 +184,32 @@ fun BookReaderHomeScreen(
                 CurrentReadCard()
                 Spacer(modifier = Modifier.height(8.dp))
                 SectionTitle(text = "My Reading List")
-                ReadingListSection(
-                    bookList = bookList,
-                    onClick= {
-                        navController.navigate(BookReaderScreens.UPDATE_SCREEN.name + "/$it")
-                    })
+
+                when (val state = savedBooksList) {
+                    is FirebaseResponse.Loading -> {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    is FirebaseResponse.Success -> {
+                        val books = state.data ?: emptyList()
+
+                        ReadingListSection(bookList = books, onClick = {
+                            navController.navigate(BookReaderScreens.UPDATE_SCREEN.name + "/$it")
+                        })
+                    }
+                    is FirebaseResponse.Error -> {
+                        Text(text = state.message ?: "Something went wrong")
+                    }
+                }
             }
         }
 
-        Box( contentAlignment = Alignment.Center){
+        Box(contentAlignment = Alignment.Center) {
             if (search.value) {
                 SearchBar(
                     query = query.value,
@@ -218,7 +236,7 @@ fun BookReaderHomeScreen(
                         }
                         ) {
                             Icon(
-                                imageVector = Icons.Default.KeyboardArrowLeft,
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 contentDescription = "arrow back",
                                 modifier = Modifier.size(46.dp)
                             )
@@ -236,26 +254,25 @@ fun BookReaderHomeScreen(
                         state.loading -> {
                             CircularProgressIndicator()
                         }
+
                         state.data?.isEmpty() == true -> {
                             Text("No Books available")
                         }
+
                         else -> {
                             LazyColumn(
                                 contentPadding = PaddingValues(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(14.dp)
-                            ){
-                                items(state.data ?: emptyList()){ book ->
+                            ) {
+                                items(state.data ?: emptyList()) { book ->
                                     SearchResultItem(book = book, navController = navController)
-
                                 }
                             }
                         }
                     }
                 }
             }
-
         }
-
     }
 }
 
@@ -263,9 +280,10 @@ fun BookReaderHomeScreen(
 @Composable
 fun SearchResultItem(
     book: Item,
-    navController: NavController
+    navController: NavController,
 ) {
-    val imageUrl: String? = book.volumeInfo.imageLinks?.smallThumbnail ?.replace("http://", "https://")
+    val imageUrl: String? =
+        book.volumeInfo.imageLinks?.smallThumbnail?.replace("http://", "https://")
 
     Surface(
         shape = RoundedCornerShape(10.dp),
@@ -292,7 +310,7 @@ fun SearchResultItem(
                 modifier = Modifier
             ) {
                 Text(
-                    text = book.volumeInfo.title,
+                    text = book.volumeInfo.title.orEmpty(),
                     fontSize = 18.sp,
                     fontFamily = InterFont,
                     color = colorResource(id = R.color.black),
@@ -322,13 +340,13 @@ fun SearchResultItem(
                                 fontWeight = FontWeight.Medium,
                             )
                         ) {
-                            append(book.volumeInfo.authors.toString())
+                            append(book.volumeInfo?.authors?.toString() ?: "Unknown author")
                         }
                     }
                 )
 
                 Text(
-                    text = book.volumeInfo.description,
+                    text = book.volumeInfo.description ?: "No Description Found",
                     fontSize = 14.sp,
                     fontFamily = InterFont,
                     color = colorResource(id = R.color.black),
@@ -344,7 +362,7 @@ fun SearchResultItem(
 @Composable
 fun ReadingListSection(
     bookList: List<MBook>,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -356,7 +374,7 @@ fun ReadingListSection(
 
         for (book in bookList) {
             ReadingListCard(book = book, modifier = Modifier) {
-                onClick(it)
+                onClick(book.googleBookId.toString())
             }
         }
     }
