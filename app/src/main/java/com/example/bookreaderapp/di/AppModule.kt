@@ -19,11 +19,9 @@ import javax.inject.Singleton
 object AppModule {
     @Singleton
     @Provides
-    fun providesFirebaseRepository() =
-        FirebaseRepository(
-            queryBook = Firebase.firestore
-                .collection("books")
-        )
+    fun providesFireRepository()
+        = FirebaseRepository(queryBook = Firebase.firestore
+            .collection("my_books"))
 
     @Singleton
     @Provides

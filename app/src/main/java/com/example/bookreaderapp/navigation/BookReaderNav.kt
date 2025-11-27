@@ -70,7 +70,7 @@ fun BookReaderNav() {
             )
         ) { backStackEntry ->
             backStackEntry.arguments?.getString("bookUpdate")?.let {
-                BookReaderUpdateScreen(updateBook = it)
+                BookReaderUpdateScreen(updateBook = it, )
             }
         }
     }

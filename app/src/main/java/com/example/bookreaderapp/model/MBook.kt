@@ -1,10 +1,11 @@
 package com.example.bookreaderapp.model
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.PropertyName
 
 data class MBook(
-    var id: String? = null,
+    @Exclude var id: String? = null,
     var title: String? = null,
     var authors: List<String>? = null,
     var notes: String? = null,
@@ -40,5 +41,27 @@ data class MBook(
 
     @get:PropertyName("google_book_id")
     @set:PropertyName("google_book_id")
-    var googleBookId: String? = null
+    var googleBookId: String? = null,
+
+//    @get:PropertyName("saved_at")
+//    @set:PropertyName("saved_at")
+//    var savedAt: Long  = System.currentTimeMillis()
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

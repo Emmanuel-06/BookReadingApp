@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "BookReaderApp"
 include(":app")
- 
+include(":test")
